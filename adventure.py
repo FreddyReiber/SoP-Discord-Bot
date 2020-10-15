@@ -19,7 +19,7 @@ class Adventure:
 
     def getStandardOutput(self):
         if self.scheduled == True:
-            return f"Current list of players for {self.name} on {self.date} at {self.time}"
+            return f"Current list of players for {self.name}.\nThe game is set to start on {self.date} at {self.time}"
         return f"{self.name} has not been scheduled"
 
     def setLastOutput(self, lastOutput):

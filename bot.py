@@ -115,6 +115,29 @@ async def on_reaction_add(ctx, user):
     output = thisAdv.getCurrentOutput(listOfUsers)
     await ctx.message.edit(content = output )
 
+@bot.event
+async def on_reaction_remove(ctx,user):
+    print("CONSOLE:: Trigger of on_reaction_remove")
+    if str(ctx.emoji) != EMOJI:
+        return
+    inList = -1
+    for i in range(0, len(listOfAdventures)):
+        if ctx.message.content in listOfAdventures[i].lastOutput:
+            inList = i
+            break
+    if inList == -1:
+        return
+
+    thisAdv = listOfAdventures[inList]
+    listofUsers = await ctx.users().flatten()
+    output = thisAdv.getCurrentOutput(listofUsers)
+    await ctx.message.edit(content = output)
+
+
+
+
+
+
 
 
 #Error handeling
