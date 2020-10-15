@@ -20,7 +20,7 @@ bot = commands.Bot(command_prefix='!')
 #Tupels with current output tex
 listOfAdventures = []
 headRole = "Dungeon Master"
-
+channelList = []
 
 
 @bot.event
@@ -64,6 +64,13 @@ async def on_message(ctx, dice):
     value = random.randint(1, diceSize)
     await ctx.send(f'You rolled a {value}')
 
+@bot.command(name = 'setChannel')
+@commands.has_role(headRole)
+async def on_message(ctx):
+    channelList.append(ctx.channel)
+    print(type(ctx.channel))
+    await ctx.send("Set this as the channel!")
+
 #Schedueling Commands!
 @bot.command(name = "advAdd", help = "Adds a new adventure to the list of available adventures with player count.")
 @commands.has_role(headRole)
@@ -82,7 +89,7 @@ async def on_message(ctx):
         output += f' -{adv.name}\n'
     await ctx.send(output)
 
-@bot.command(name = "advPlay", help = "Starts toe ")
+@bot.command(name = "advPlay", help = "Creates an instance of the adventure and posts it to the current job listings channel.")
 async def on_message(ctx, advName, date, time):
     listIndex = -1
     for i in range(0, len(listOfAdventures)):
@@ -96,7 +103,7 @@ async def on_message(ctx, advName, date, time):
     thisAdv.setDateAndTime(date, time)
     output = thisAdv.getStandardOutput()
     thisAdv.setLastOutput(output)
-    await ctx.send(output)
+    await channelList[0].send(content = output)
 
 @bot.event
 async def on_reaction_add(ctx, user):
