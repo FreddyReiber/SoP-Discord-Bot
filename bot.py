@@ -1,6 +1,7 @@
 import os
 import discord
 import random
+from GuildFund import GuildFund
 from adventure import Adventure
 from dotenv import load_dotenv
 
@@ -17,7 +18,7 @@ bot = commands.Bot(command_prefix='!')
 
 
 #Variables for running of Bot
-#Tupels with current output tex
+listOfGuildFunds = []
 listOfAdventures = []
 headRole = "Dungeon Master"
 channelList = []
@@ -41,6 +42,7 @@ async def on_message(ctx):
     await ctx.send(response)
 
 #Dice Rolling Feature - All can use
+#TODO Add feature to roll multiple dice
 @bot.command(name = "roll", help = "Rolls a standard DnD Dice!")
 async def on_message(ctx, dice):
     diceSize = 0
@@ -54,6 +56,8 @@ async def on_message(ctx, dice):
         diceSize = 8
     elif dice == 'd10':
         diceSize = 10
+    elif dice == 'd12':
+        diceSize = 12
     elif dice == 'd20':
         diceSize = 20
     elif dice == 'd100':
@@ -64,6 +68,8 @@ async def on_message(ctx, dice):
     value = random.randint(1, diceSize)
     await ctx.send(f'You rolled a {value}')
 
+
+#All commands relating to the schedule feature
 @bot.command(name = 'setChannel')
 @commands.has_role(headRole)
 async def on_message(ctx):
@@ -72,6 +78,7 @@ async def on_message(ctx):
     await ctx.send("Set this as the channel!")
 
 #Schedueling Commands!
+#TODO make a system for keeping jobs active upon restart.
 @bot.command(name = "advAdd", help = "Adds a new adventure to the list of available adventures with player count.")
 @commands.has_role(headRole)
 async def on_message(ctx, adventureName, minPlayers: int, maxPlayers: int):
@@ -139,6 +146,33 @@ async def on_reaction_remove(ctx,user):
     listofUsers = await ctx.users().flatten()
     output = thisAdv.getCurrentOutput(listofUsers)
     await ctx.message.edit(content = output)
+#end adv commands
+
+#Begin Guild Fund Feature
+#TODO allow for multipul guild funds to be created.
+@bot.command(name = "fundCreate", help = "Initilizes a guild fund")
+async def on_message(ctx, guildName, currentfunds):
+    newGuildFund = GuildFund(guildName, currentfunds)
+    listOfGuildFunds.append(newGuildFund)
+    await ctx.send(f"Created a Guild fund for {guildName}")
+
+@bot.command(name = "fundAdd", help = "Adds to guild fund")
+async def on_message(ctx, newFunds : int):
+    currentFund = listOfGuildFunds[0]
+    currentFund.addGuildFunds(newFunds)
+    await ctx.send(f"Add {newFunds} to the guild fund")
+
+@bot.command(name = "fundRemove", help = "Removes from the guild fund")
+async def on_message(ctx, spentFunds:int):
+    currentFund = listOfGuildFunds[0]
+    currentFund.removeGuildFunds(spentFunds)
+    await ctx.send(f"Removed {spentFunds} from the guild fund")
+
+@bot.command(name = "fundCheck", help = "Checks the guild fund")
+async def on_message(ctx):
+    currentFund = listOfGuildFunds[0]
+    check = currentFund.getCurrentFunds()
+    await ctx.send(f"The Guilds current funds are at {check} GP")
 
 
 
